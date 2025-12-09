@@ -1,0 +1,64 @@
+<link rel="stylesheet" href="/styles.css" />
+
+<div class="container">
+  <h2>Admin Dashboard</h2>
+
+  <div id="tasks">Loading tasks...</div>
+  <div class="nav">
+    <button
+      onclick="logout()"
+      style="
+        background: #dc3545;
+        padding: 10px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        cursor: pointer;
+      "
+    >
+      Logout
+    </button>
+  </div>
+</div>
+
+<script>
+  async function loadTasks() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You are not logged in");
+      window.location = "/";
+      return;
+    }
+
+    const res = await fetch("/dashboard/admin", {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+
+    if (data.tasks) {
+      document.getElementById("tasks").innerHTML = data.tasks
+        .map(
+          (t) =>
+            `<p><strong>${t.title}</strong> — ${t.description} (User: ${t.userId.email})</p>`
+        )
+        .join("");
+    } else {
+      document.getElementById("tasks").innerHTML = "<p>No tasks found.</p>";
+    }
+  }
+
+  loadTasks();
+
+  function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    window.location = "/";
+  }
+</script>
