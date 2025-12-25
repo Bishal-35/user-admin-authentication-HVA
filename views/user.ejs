@@ -24,15 +24,12 @@
 </div>
 
 <script>
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    window.location = "/";
+  }
+  
   async function loadTasks() {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("You are not logged in");
-      window.location = "/";
-      return;
-    }
-
     const res = await fetch("/dashboard/user", {
       method: "GET",
       headers: {
@@ -55,8 +52,8 @@
   loadTasks();
 
   function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
     window.location = "/";
   }
 </script>
