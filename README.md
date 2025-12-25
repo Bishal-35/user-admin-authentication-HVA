@@ -128,6 +128,10 @@ Password: 123456
 
 ```bash
 npm start
+or
+npm server.js
+or
+nodemon server.js
 ```
 
 Visit: `http://localhost:5000`
@@ -295,7 +299,7 @@ Both Admin and User dashboards are rendered using **EJS templates**. Task data i
 
 ### Data Flow
 
-1. User logs in → JWT token stored in `localStorage`
+1. User logs in → JWT token stored in `sessionStorage`
 2. Dashboard page loads (EJS renders empty container)
 3. Frontend JavaScript calls `/dashboard/user` or `/dashboard/admin`
 4. Backend returns task data as JSON
@@ -313,10 +317,9 @@ Both Admin and User dashboards are rendered using **EJS templates**. Task data i
 
 ```javascript
 // user.ejs
+const token = sessionStorage.getItem("token");
 async function loadTasks() {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("/dashboard/user", {
+    const res = await fetch("/dashboard/user", {
     method: "GET",
     headers: {
       Authorization: "Bearer " + token,
@@ -342,7 +345,7 @@ loadTasks();
 ### login.ejs
 
 - Login form with email and password
-- Stores JWT token in localStorage
+- Stores JWT token in sessionStorage
 - Redirects to `/admin` for admins, `/user` for regular users
 - Link to registration page
 
@@ -357,7 +360,7 @@ loadTasks();
 
 - Displays tasks belonging to logged-in user
 - Fetches from `/dashboard/user` endpoint
-- Logout button clears localStorage and redirects to login
+- Logout button clears sessionStorage and redirects to login
 - Shows "No tasks found" if user has no tasks
 
 ### admin.ejs
@@ -365,7 +368,7 @@ loadTasks();
 - Displays all tasks in the system
 - Fetches from `/dashboard/admin` endpoint
 - Shows task owner's email for each task
-- Logout button clears localStorage and redirects to login
+- Logout button clears sessionStorage and redirects to login
 - Shows "No tasks found" if no tasks exist
 
 ---
@@ -390,7 +393,7 @@ loadTasks();
 - Role-based access control at middleware level
 - CORS enabled
 - Environment variables for secrets
-- Token stored in localStorage (client-side)
+- Token stored in sessionStorage (client-side)
 
 ---
 
@@ -479,7 +482,3 @@ Visit: `https://your-app.onrender.com`
 - Keep `.env` file in `.gitignore` — never commit secrets
 
 ---
-
-## License
-
-Free to use for learning and personal projects.
