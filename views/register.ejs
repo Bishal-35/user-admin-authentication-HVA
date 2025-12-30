@@ -15,6 +15,14 @@
 </div>
 
 <script>
+  const token = sessionStorage.getItem("token");
+  const role = sessionStorage.getItem("role");
+
+  if (token) {
+    alert("Please logout before registering a new user.");
+    window.location = role === "admin" ? "/admin" : "/user";
+  }
+  
   async function registerUser(e) {
     e.preventDefault();
 

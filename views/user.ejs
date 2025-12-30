@@ -24,25 +24,22 @@
 </div>
 
 <script>
-  const token = sessionStorage.getItem("token");
-  if (!token) {
-    window.location = "/";
-  }
-  
   async function loadTasks() {
-    const res = await fetch("/dashboard/user", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch("/dashboard/user");
+
+    if (res.status === 401 || res.status === 403) {
+      window.location = "/";
+      return;
+    }
 
     const data = await res.json();
 
     if (data.tasks && data.tasks.length > 0) {
       document.getElementById("tasks").innerHTML = data.tasks
-        .map((t) => `<p><strong>${t.title}</strong> — ${t.description}</p>`)
+        .map(
+          (t) =>
+            `<p><strong>${t.title}</strong> — ${t.description}</p>`
+        )
         .join("");
     } else {
       document.getElementById("tasks").innerHTML = "<p>No tasks found.</p>";
@@ -52,8 +49,6 @@
   loadTasks();
 
   function logout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("role");
-    window.location = "/";
+    window.location = "/auth/logout";
   }
 </script>

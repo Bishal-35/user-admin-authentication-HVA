@@ -4,6 +4,7 @@
   <h2>Admin Dashboard</h2>
 
   <div id="tasks">Loading tasks...</div>
+
   <div class="nav">
     <button
       onclick="logout()"
@@ -23,23 +24,17 @@
 </div>
 
 <script>
-  const token = sessionStorage.getItem("token");
-  if (!token) {
-    window.location = "/";
-  }
-  
   async function loadTasks() {
-    const res = await fetch("/dashboard/admin", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch("/dashboard/admin");
+
+    if (res.status === 401 || res.status === 403) {
+      window.location = "/";
+      return;
+    }
 
     const data = await res.json();
 
-    if (data.tasks) {
+    if (data.tasks && data.tasks.length > 0) {
       document.getElementById("tasks").innerHTML = data.tasks
         .map(
           (t) =>
@@ -54,8 +49,6 @@
   loadTasks();
 
   function logout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("role");
-    window.location = "/";
+    window.location = "/auth/logout";
   }
 </script>

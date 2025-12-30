@@ -10,19 +10,18 @@ router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if email already exists
     const exists = await User.findOne({ email });
-    if (exists) return res.json({ message: "Email already exists" });
+    if (exists) {
+      return res.json({ message: "Email already exists" });
+    }
 
-    // Hash password
     const hashed = await bcrypt.hash(password, 10);
 
-    // Create a new user with default role "user"
     await User.create({
       name,
       email,
       password: hashed,
-      role: "user", // ✔ important!
+      role: "user", // default role
     });
 
     res.json({ message: "User registered successfully" });
@@ -37,10 +36,14 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.json({ message: "User not found" });
+    if (!user) {
+      return res.json({ message: "User not found" });
+    }
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.json({ message: "Incorrect password" });
+    if (!match) {
+      return res.json({ message: "Incorrect password" });
+    }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -48,10 +51,27 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ message: "Login successful", token, role: user.role });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+      // sameSite: "lax",
+      // secure: false,
+    });
+
+    res.json({
+      message: "Login successful",
+      role: user.role,
+    });
   } catch (err) {
     res.json({ error: err.message });
   }
+});
+
+// LOGOUT
+router.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/");
 });
 
 module.exports = router;

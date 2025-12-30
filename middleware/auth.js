@@ -1,21 +1,19 @@
 const jwt = require("jsonwebtoken");
 
 function auth(req, res, next) {
-  const header = req.headers.authorization;
+  const token = req.cookies.token;
 
-  if (!header) {
-    return res.status(401).json({ message: "Authorization header missing" });
+  if (!token) {
+    return res.redirect("/");
   }
-
-  const token = header.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // store user info for next middleware
+    req.user = decoded;
     next();
-  } catch {
-    res.status(403).json({ message: "Invalid token" });
+  } catch (err) {
+    return res.redirect("/");
   }
-}
+};
 
 module.exports = auth;

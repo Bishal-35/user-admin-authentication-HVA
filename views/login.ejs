@@ -27,13 +27,17 @@
     });
 
     const data = await res.json();
-    if (data.token) {
-      sessionStorage.setItem("token", data.token);
 
-      if (data.role === "admin") window.location = "/admin";
-      else window.location = "/user";
+    if (data.message === "Login successful") {
+      // ✅ REDIRECT BASED ON ROLE (COOKIE IS ALREADY SET)
+      if (data.role === "admin") {
+        window.location = "/admin";
+      } else {
+        window.location = "/user";
+      }
     } else {
-      alert(data.message);
+      alert(data.message || "Login failed");
     }
   }
 </script>
+
